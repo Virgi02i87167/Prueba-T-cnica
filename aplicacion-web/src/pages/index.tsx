@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+// pages/index.tsx
+import { useEffect, useState } from 'react';
 import { getTasks, createTask, deleteTask, updateTask } from '../services/taskService';
-import { Task } from "../types";
+import { Task } from '../types';
 import { Button, TextField, Container, List, ListItem, ListItemText, Checkbox, IconButton, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,11 +12,12 @@ export default function Home() {
     const [editTask, setEditTask] = useState<Task | null>(null);
 
     useEffect(() => {
-        const fetchTask = async () => {
+        const fetchTasks = async () => {
             const tasks = await getTasks();
             setTasks(tasks);
-        }
-    }, [])
+        };
+        fetchTasks();
+    }, []);
 
     const handleCreateTask = async () => {
         if (newTaskTitle.trim()) {
@@ -23,7 +25,7 @@ export default function Home() {
             setTasks([...tasks, newTask]);
             setNewTaskTitle('');
         }
-    }
+    };
 
     const handleUpdateTask = async (task: Task) => {
         const updatedTask = await updateTask(task.id, { completed: !task.completed });
@@ -32,8 +34,8 @@ export default function Home() {
 
     const handleEditTask = (task: Task) => {
         setEditTask(task);
-        setNewTaskTitle(task.title)
-    }
+        setNewTaskTitle(task.title);
+    };
 
     const handleSaveEdit = async () => {
         if (editTask && newTaskTitle.trim()) {
@@ -45,13 +47,22 @@ export default function Home() {
     };
 
     const handleDeleteTask = async (id: number) => {
-        await deleteTask(id);
-        setTasks(tasks.filter(task => task.id !== id));
+        console.log('ID recibido para eliminar:', id); // Depuración del ID
+        if (id === undefined || id === null || isNaN(id)) {
+            console.error('ID inválido:', id);
+            return;
+        }
+    
+        try {
+            await deleteTask(id);
+        } catch (error) {
+            console.error('Error al manejar la eliminación de la tarea:', error);
+        }
     };
 
     return (
         <Container>
-            <Typography variant="h4" gutterBottom>Task manager</Typography>
+            <Typography variant="h4" gutterBottom>Task Manager</Typography>
             <TextField
                 label="New Task"
                 variant="outlined"
@@ -61,16 +72,16 @@ export default function Home() {
                 margin="normal"
             />
             <Button variant="contained" color="primary" onClick={editTask ? handleSaveEdit : handleCreateTask}>
-                {editTask ? 'Save' : 'Add Task'}
+                {editTask ? 'Actualizar' : 'Guardar Tarea'}
             </Button>
             <List>
                 {tasks.map(task => (
-                    <ListItem key={task.id}>
+                    <ListItem key={task.id}>  {/* Asegúrate de usar una key única */}
                         <Checkbox
                             checked={task.completed}
                             onChange={() => handleUpdateTask(task)}
                         />
-                        <ListItemText primary={task.title}/>
+                        <ListItemText primary={task.title} />
                         <IconButton edge="end" aria-label="edit" onClick={() => handleEditTask(task)}>
                             <EditIcon />
                         </IconButton>
@@ -82,4 +93,4 @@ export default function Home() {
             </List>
         </Container>
     );
-};
+}
