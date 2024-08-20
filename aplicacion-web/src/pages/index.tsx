@@ -76,10 +76,12 @@ export default function Home() {
             </Button>
             <List>
                 {tasks.map(task => (
-                    <ListItem key={task.id}>  {/* Asegúrate de usar una key única */}
+                    <ListItem key={task.id}>
                         <Checkbox
+                            edge="start"
                             checked={task.completed}
                             onChange={() => handleUpdateTask(task)}
+                            inputProps={{ 'aria-label': 'complete task checkbox' }} 
                         />
                         <ListItemText primary={task.title} />
                         <IconButton edge="end" aria-label="edit" onClick={() => handleEditTask(task)}>
